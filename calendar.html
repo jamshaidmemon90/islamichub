@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Calendar - Islamic Hub</title>
+    <meta name="description" content="View the full Islamic Hijri Calendar mapped to Gregorian dates.">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19h-13L12 5.5z"/>
+                </svg>
+                Islamic Hub
+            </a>
+            
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="quran.html">Quran</a></li>
+                    <li><a href="hadith.html">Hadith</a></li>
+                    <li><a href="prayer.html">Prayer Times</a></li>
+                    <li><a href="duas.html">Library</a></li>
+                    <li><a href="zakat.html">Zakat</a></li>
+                    <li><a href="calendar.html" class="active">Calendar</a></li>
+                    <li><a href="assistant.html">Assistant</a></li>
+                </ul>
+            </nav>
+
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode"></button>
+            <button id="mobile-toggle" class="mobile-toggle" aria-label="Toggle Mobile Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; padding: 3rem 2rem; text-align: center; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; margin-bottom: 3rem;">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Islamic Hijri Calendar</h1>
+                <p style="font-size: 1.1rem; color: #e2e8f0;">View Hijri dates corresponding to the Gregorian calendar.</p>
+            </div>
+        </section>
+
+        <div class="container">
+            <div class="card" style="padding: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                    <button id="prev-month" style="background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">&larr; Previous</button>
+                    <h2 id="calendar-title" style="color: var(--primary-color); margin: 0; text-align: center; flex: 1;">Loading...</h2>
+                    <button id="next-month" style="background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Next &rarr;</button>
+                </div>
+
+                <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center;">
+                    <!-- Days of week -->
+                    <div style="font-weight: bold; color: var(--text-secondary); padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">Sun</div>
+                    <div style="font-weight: bold; color: var(--text-secondary); padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">Mon</div>
+                    <div style="font-weight: bold; color: var(--text-secondary); padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">Tue</div>
+                    <div style="font-weight: bold; color: var(--text-secondary); padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">Wed</div>
+                    <div style="font-weight: bold; color: var(--text-secondary); padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">Thu</div>
+                    <div style="font-weight: bold; color: var(--text-secondary); padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">Fri</div>
+                    <div style="font-weight: bold; color: var(--text-secondary); padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">Sat</div>
+                </div>
+                
+                <div id="calendar-days" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center; margin-top: 10px;">
+                    <!-- Days will be inserted here dynamically -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>Islamic Hub</h3>
+                <p style="color: #cbd5e1; margin-bottom: 1rem;">Your trusted source for authentic Islamic knowledge.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Islamic Hub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/calendar.js"></script>
+</body>
+</html>

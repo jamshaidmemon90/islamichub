@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Hub - Audio Quran</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .audio-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .reciters-list {
+            background: var(--surface-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .reciter-item {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .reciter-item:hover, .reciter-item.active {
+            background: rgba(11, 93, 58, 0.1);
+            color: var(--primary-color);
+        }
+
+        .audio-player-card {
+            background: var(--surface-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 3rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .surah-select {
+            width: 100%;
+            max-width: 400px;
+            padding: 1rem;
+            border-radius: var(--radius);
+            border: 2px solid var(--border-color);
+            font-size: 1.1rem;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+        }
+
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .btn-play {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-play:hover {
+            transform: scale(1.05);
+            background-color: var(--primary-dark);
+        }
+
+        .btn-ctrl {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .btn-ctrl:hover {
+            background-color: var(--border-color);
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 900px) {
+            .audio-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19h-13L12 5.5z"/></svg>
+                Islamic Hub
+            </a>
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="quran.html">Quran</a></li>
+                    <li><a href="hadith.html">Hadith</a></li>
+                    <li><a href="audio.html" class="active">Audio</a></li>
+                    <li><a href="prayer.html">Prayer Times</a></li>
+                    <li><a href="assistant.html">Assistant</a></li>
+                </ul>
+            </nav>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode"></button>
+            <button id="mobile-toggle" class="mobile-toggle" aria-label="Toggle Mobile Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="container" style="max-width: 1200px;">
+        <h1 class="section-title">Listen to the Quran</h1>
+        
+        <div class="audio-layout">
+            <!-- Sidebar: Reciters -->
+            <aside class="reciters-list" id="reciters-list">
+                <!-- Populated by JS -->
+                <div class="loader-container"><div class="loader"></div></div>
+            </aside>
+
+            <!-- Main Content: Player -->
+            <main class="audio-player-card">
+                <h2 id="current-reciter-name" style="margin-bottom: 0.5rem; color: var(--primary-color);">Select a Reciter</h2>
+                <p id="current-reciter-style" style="color: var(--text-secondary); margin-bottom: 2rem;"></p>
+
+                <select id="surah-select" class="surah-select">
+                    <!-- Populated by JS -->
+                </select>
+
+                <!-- Audio Element (Hidden, controlled via custom UI) -->
+                <audio id="quran-audio" style="width: 100%; margin-top: 1rem;" controls></audio>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 1rem;">Note: Online playback uses external APIs. Local files can be used if placed in the /audio folder.</p>
+            </main>
+        </div>
+    </div>
+
+    <script src="json/quran.js"></script>
+    <script src="json/audio.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/audio.js"></script>
+</body>
+</html>

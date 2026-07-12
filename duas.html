@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Hub - Daily Duas & Azkar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19h-13L12 5.5z"/></svg>
+                Islamic Hub
+            </a>
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="quran.html">Quran</a></li>
+                    <li><a href="hadith.html">Hadith</a></li>
+                    <li><a href="audio.html">Audio</a></li>
+                    <li><a href="prayer.html">Prayer Times</a></li>
+                    <li><a href="assistant.html">Assistant</a></li>
+                </ul>
+            </nav>
+            <button id="theme-toggle" class="theme-toggle"></button>
+            <button id="mobile-toggle" class="mobile-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="container" style="max-width: 900px;">
+        
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem;">
+            <a href="duas.html" class="btn btn-primary">Daily Duas</a>
+            <a href="names.html" class="btn btn-secondary">99 Names of Allah</a>
+        </div>
+
+        <h1 class="section-title" style="text-align: left;">Daily Duas & Azkar</h1>
+        
+        <div id="duas-container">
+            <div class="loader-container"><div class="loader"></div></div>
+        </div>
+    </div>
+
+    <script src="json/library.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/library.js"></script>
+</body>
+</html>

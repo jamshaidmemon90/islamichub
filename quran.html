@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Hub - Holy Quran</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .quran-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .surah-list {
+            background: var(--surface-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+        .surah-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .surah-item:hover, .surah-item.active {
+            background: rgba(11, 93, 58, 0.1);
+            color: var(--primary-color);
+        }
+        .surah-item .en-name { font-weight: 600; }
+        .surah-item .ar-name { font-family: var(--font-arabic); font-size: 1.25rem; }
+        
+        .quran-reader {
+            background: var(--surface-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            min-height: calc(100vh - 120px);
+        }
+        
+        .verse-card {
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 0;
+            position: relative;
+        }
+        
+        .verse-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .verse-actions button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .verse-actions button:hover {
+            color: var(--primary-color);
+        }
+        
+        .translation {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .translation-ur { font-family: 'Amiri', serif; font-size: 1.2rem; }
+        .translation-sd { font-family: 'Amiri', serif; font-size: 1.2rem; }
+        
+        /* Controls */
+        .reader-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        select {
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-primary);
+        }
+        
+        @media (max-width: 900px) {
+            .quran-container {
+                grid-template-columns: 1fr;
+            }
+            .surah-list {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19h-13L12 5.5z"/></svg>
+                Islamic Hub
+            </a>
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="quran.html" class="active">Quran</a></li>
+                    <li><a href="hadith.html">Hadith</a></li>
+                    <li><a href="audio.html">Audio</a></li>
+                    <li><a href="prayer.html">Prayer Times</a></li>
+                    <li><a href="assistant.html">Assistant</a></li>
+                </ul>
+            </nav>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode"></button>
+            <button id="mobile-toggle" class="mobile-toggle" aria-label="Toggle Mobile Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="container" style="max-width: 1400px;">
+        <div class="quran-container">
+            <!-- Sidebar: Surah List -->
+            <aside class="surah-list" id="surah-list">
+                <div style="padding: 1rem; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: var(--surface-color); z-index: 10;">
+                    <input type="text" id="surah-search" placeholder="Search Surah..." class="search-input" style="padding-left: 1rem; width: 100%;">
+                </div>
+                <div id="surah-items">
+                    <!-- Populated by JS -->
+                    <div class="loader-container"><div class="loader"></div></div>
+                </div>
+            </aside>
+
+            <!-- Main Content: Reader -->
+            <main class="quran-reader">
+                <div class="reader-controls">
+                    <div class="control-group">
+                        <h2 id="current-surah-title">Loading...</h2>
+                    </div>
+                    <div class="control-group">
+                        <label for="font-size">Text Size:</label>
+                        <select id="font-size">
+                            <option value="1.5rem">Small</option>
+                            <option value="2rem" selected>Medium</option>
+                            <option value="2.5rem">Large</option>
+                            <option value="3rem">Extra Large</option>
+                        </select>
+                        
+                        <label for="translation-toggle">Translation:</label>
+                        <select id="translation-toggle">
+                            <option value="all">All</option>
+                            <option value="en">English Only</option>
+                            <option value="ur">Urdu Only</option>
+                            <option value="sd">Sindhi Only</option>
+                            <option value="none">Reading Mode (Arabic Only)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Bismillah Header -->
+                <div class="text-center mb-2" id="bismillah-header" style="display: none;">
+                    <h3 class="arabic-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</h3>
+                </div>
+
+                <div id="verses-container">
+                    <!-- Populated by JS -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="json/quran.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/quran.js"></script>
+</body>
+</html>

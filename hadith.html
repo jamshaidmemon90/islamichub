@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Hub - Hadith Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .hadith-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .collection-list {
+            background: var(--surface-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .collection-item {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .collection-item:hover, .collection-item.active {
+            background: rgba(11, 93, 58, 0.1);
+            color: var(--primary-color);
+        }
+
+        .collection-item h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+        .collection-item p { font-size: 0.85rem; color: var(--text-secondary); }
+
+        .hadith-reader {
+            background: var(--surface-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            min-height: calc(100vh - 120px);
+        }
+
+        .chapter-header {
+            background-color: rgba(11, 93, 58, 0.05);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .hadith-card {
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 0;
+        }
+
+        .hadith-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .hadith-text {
+            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 900px) {
+            .hadith-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19h-13L12 5.5z"/></svg>
+                Islamic Hub
+            </a>
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="quran.html">Quran</a></li>
+                    <li><a href="hadith.html" class="active">Hadith</a></li>
+                    <li><a href="audio.html">Audio</a></li>
+                    <li><a href="prayer.html">Prayer Times</a></li>
+                    <li><a href="assistant.html">Assistant</a></li>
+                </ul>
+            </nav>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode"></button>
+            <button id="mobile-toggle" class="mobile-toggle" aria-label="Toggle Mobile Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="container" style="max-width: 1400px;">
+        <h1 class="section-title" style="text-align: left;">Authentic Hadith Collections</h1>
+        
+        <div class="search-container" style="margin: 0 0 2rem 0; max-width: 100%;">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="hadith-search" class="search-input" placeholder="Search Hadith by keyword...">
+        </div>
+
+        <div class="hadith-container">
+            <!-- Sidebar: Collections List -->
+            <aside class="collection-list" id="collection-list">
+                <!-- Populated by JS -->
+                <div class="loader-container"><div class="loader"></div></div>
+            </aside>
+
+            <!-- Main Content: Reader -->
+            <main class="hadith-reader" id="hadith-reader">
+                <!-- Populated by JS -->
+                <div class="text-center mt-2">
+                    <p>Select a collection to start reading.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="json/hadith.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/hadith.js"></script>
+</body>
+</html>

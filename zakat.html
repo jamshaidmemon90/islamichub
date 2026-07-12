@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zakat Calculator - Islamic Hub</title>
+    <meta name="description" content="Calculate your annual Zakat easily with our Zakat Calculator.">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19h-13L12 5.5z"/>
+                </svg>
+                Islamic Hub
+            </a>
+            
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="quran.html">Quran</a></li>
+                    <li><a href="hadith.html">Hadith</a></li>
+                    <li><a href="prayer.html">Prayer Times</a></li>
+                    <li><a href="duas.html">Library</a></li>
+                    <li><a href="zakat.html" class="active">Zakat</a></li>
+                    <li><a href="calendar.html">Calendar</a></li>
+                    <li><a href="assistant.html">Assistant</a></li>
+                </ul>
+            </nav>
+
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode"></button>
+            <button id="mobile-toggle" class="mobile-toggle" aria-label="Toggle Mobile Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; padding: 3rem 2rem; text-align: center; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; margin-bottom: 3rem;">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Zakat Calculator</h1>
+                <p style="font-size: 1.1rem; color: #e2e8f0;">Calculate your annual Zakat easily by entering your assets below.</p>
+            </div>
+        </section>
+
+        <div class="container" style="max-width: 800px;">
+            <div class="card" style="padding: 2rem;">
+                <h2 style="color: var(--primary-color); margin-bottom: 1.5rem; text-align: center;">Enter Your Assets</h2>
+                
+                <form id="zakat-form" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div>
+                        <label for="gold" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Value of Gold & Silver</label>
+                        <input type="number" id="gold" class="search-input" placeholder="0" min="0" style="width: 100%;">
+                    </div>
+                    
+                    <div>
+                        <label for="cash" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Cash (in Hand & Bank)</label>
+                        <input type="number" id="cash" class="search-input" placeholder="0" min="0" style="width: 100%;">
+                    </div>
+
+                    <div>
+                        <label for="investments" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Value of Investments & Shares</label>
+                        <input type="number" id="investments" class="search-input" placeholder="0" min="0" style="width: 100%;">
+                    </div>
+
+                    <div>
+                        <label for="business" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Value of Business Inventory</label>
+                        <input type="number" id="business" class="search-input" placeholder="0" min="0" style="width: 100%;">
+                    </div>
+
+                    <div>
+                        <label for="liabilities" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Liabilities & Debts (to be subtracted)</label>
+                        <input type="number" id="liabilities" class="search-input" placeholder="0" min="0" style="width: 100%;">
+                    </div>
+
+                    <button type="submit" style="background: var(--primary-color); color: white; border: none; padding: 1rem; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 1rem; transition: background 0.3s;">Calculate Zakat</button>
+                </form>
+
+                <div id="zakat-result" style="margin-top: 2rem; padding: 1.5rem; background: var(--bg-secondary); border-radius: 8px; text-align: center; display: none;">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-color);">Total Zakat Payable (2.5%)</h3>
+                    <div id="zakat-amount" style="font-size: 2.5rem; color: var(--primary-color); font-weight: 700;">0</div>
+                    <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">* Ensure your total wealth reaches the Nisab threshold before paying Zakat.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>Islamic Hub</h3>
+                <p style="color: #cbd5e1; margin-bottom: 1rem;">Your trusted source for authentic Islamic knowledge, Quran, and Hadith. Built for the modern web.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Islamic Hub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/zakat.js"></script>
+</body>
+</html>

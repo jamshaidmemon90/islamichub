@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Hub - Prayer Times & Qibla</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .prayer-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .prayer-card {
+            background: var(--surface-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .location-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .prayer-time-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 1.1rem;
+        }
+
+        .prayer-time-item:last-child {
+            border-bottom: none;
+        }
+
+        .prayer-time-item.active {
+            background-color: rgba(11, 93, 58, 0.1);
+            color: var(--primary-color);
+            font-weight: 700;
+            border-radius: var(--radius);
+            border-bottom: none;
+        }
+
+        .qibla-compass {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 5px solid var(--primary-color);
+            margin: 2rem auto;
+            position: relative;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="none" stroke="%23ccc" stroke-width="1"/><line x1="50" y1="2" x2="50" y2="10" stroke="%23ccc" stroke-width="2"/><line x1="50" y1="90" x2="50" y2="98" stroke="%23ccc" stroke-width="2"/><line x1="2" y1="50" x2="10" y2="50" stroke="%23ccc" stroke-width="2"/><line x1="90" y1="50" x2="98" y2="50" stroke="%23ccc" stroke-width="2"/><text x="50" y="25" text-anchor="middle" fill="%23ccc">N</text></svg>') no-repeat center;
+            background-size: cover;
+        }
+
+        .qibla-needle {
+            width: 4px;
+            height: 140px;
+            background-color: red;
+            position: absolute;
+            bottom: 50%;
+            left: calc(50% - 2px);
+            transform-origin: bottom center;
+            transform: rotate(0deg);
+            transition: transform 1s ease-out;
+            border-radius: 2px 2px 0 0;
+        }
+        
+        .qibla-needle::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -8px;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid red;
+        }
+
+        @media (max-width: 900px) {
+            .prayer-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19h-13L12 5.5z"/></svg>
+                Islamic Hub
+            </a>
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="quran.html">Quran</a></li>
+                    <li><a href="hadith.html">Hadith</a></li>
+                    <li><a href="audio.html">Audio</a></li>
+                    <li><a href="prayer.html" class="active">Prayer Times</a></li>
+                    <li><a href="assistant.html">Assistant</a></li>
+                </ul>
+            </nav>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode"></button>
+            <button id="mobile-toggle" class="mobile-toggle" aria-label="Toggle Mobile Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="container" style="max-width: 1200px;">
+        <h1 class="section-title">Prayer Times & Qibla Direction</h1>
+        
+        <div class="text-center mb-2">
+            <button id="locate-btn" class="btn btn-primary">Use My Location</button>
+            <p id="location-status" style="margin-top: 1rem; color: var(--text-secondary);"></p>
+        </div>
+
+        <div class="prayer-container">
+            <!-- Prayer Times List -->
+            <div class="prayer-card">
+                <div class="location-header">
+                    <h2 id="city-name">Location Not Set</h2>
+                    <p id="current-date"></p>
+                </div>
+                <div id="prayer-times-list">
+                    <div class="prayer-time-item"><span>Fajr</span> <span id="time-fajr">--:--</span></div>
+                    <div class="prayer-time-item"><span>Sunrise</span> <span id="time-sunrise">--:--</span></div>
+                    <div class="prayer-time-item"><span>Dhuhr</span> <span id="time-dhuhr">--:--</span></div>
+                    <div class="prayer-time-item"><span>Asr</span> <span id="time-asr">--:--</span></div>
+                    <div class="prayer-time-item"><span>Maghrib</span> <span id="time-maghrib">--:--</span></div>
+                    <div class="prayer-time-item"><span>Isha</span> <span id="time-isha">--:--</span></div>
+                </div>
+            </div>
+
+            <!-- Qibla Compass -->
+            <div class="prayer-card text-center">
+                <h2>Qibla Direction</h2>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Align the red needle to face the Kaaba in Mecca.</p>
+                
+                <div class="qibla-compass">
+                    <div id="qibla-needle" class="qibla-needle"></div>
+                </div>
+                
+                <p id="qibla-angle-text" style="font-size: 1.2rem; font-weight: 600; color: var(--primary-color);">Angle: --°</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/prayer.js"></script>
+</body>
+</html>

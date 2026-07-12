@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Hub - Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .assistant-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: var(--surface-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+        }
+
+        .chat-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .chat-header h2 { margin: 0; font-size: 1.5rem; }
+        .chat-header p { margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.9; }
+
+        .chat-box {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background-color: var(--bg-color);
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            max-width: 85%;
+        }
+
+        .message-user {
+            margin-left: auto;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 20px 20px 0 20px;
+        }
+
+        .message-assistant {
+            margin-right: auto;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 1rem 1.5rem;
+            border-radius: 20px 20px 20px 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .message-assistant .ref {
+            font-size: 0.85rem;
+            color: var(--primary-color);
+            margin-top: 0.5rem;
+            display: block;
+            font-weight: 600;
+        }
+
+        .chat-input-area {
+            padding: 1.5rem;
+            background: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 30px;
+            font-size: 1rem;
+            background: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .chat-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .chat-submit:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .fatwa-links {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: var(--surface-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        
+        .fatwa-links a {
+            display: inline-block;
+            margin: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(11, 93, 58, 0.1);
+            color: var(--primary-color);
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .fatwa-links a:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19h-13L12 5.5z"/></svg>
+                Islamic Hub
+            </a>
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="quran.html">Quran</a></li>
+                    <li><a href="hadith.html">Hadith</a></li>
+                    <li><a href="audio.html">Audio</a></li>
+                    <li><a href="prayer.html">Prayer Times</a></li>
+                    <li><a href="assistant.html" class="active">Assistant</a></li>
+                </ul>
+            </nav>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode"></button>
+            <button id="mobile-toggle" class="mobile-toggle" aria-label="Toggle Mobile Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="assistant-container">
+            <div class="chat-header">
+                <h2>Islamic Assistant</h2>
+                <p>Ask a question. Answers are sourced from the local Quran and Hadith database.</p>
+            </div>
+            
+            <div class="chat-box" id="chat-box">
+                <div class="message message-assistant">
+                    Assalamu Alaikum! I am your Islamic Assistant. You can ask me about topics found in the Quran or Hadith. (e.g., "What is the reward of intention?")
+                    <br><br>
+                    <strong>Note:</strong> I am a static search assistant. For complex religious rulings (Fatwas), please consult a qualified scholar.
+                </div>
+            </div>
+            
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" class="chat-input" placeholder="Type your question here...">
+                <button id="chat-submit" class="chat-submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="fatwa-links">
+            <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Need a specific Fatwa?</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">For complex personal situations, divorce, inheritance, or detailed jurisprudence, please consult trusted scholars directly.</p>
+            <a href="https://www.banuri.edu.pk/" target="_blank">Jamia Uloom-ul-Islamia Banuri Town</a>
+            <a href="https://islamqa.info/en" target="_blank">IslamQA</a>
+            <a href="https://darulifta-deoband.com/" target="_blank">Darul Ifta Deoband</a>
+        </div>
+    </div>
+
+    <script src="json/quran.js"></script>
+    <script src="json/hadith.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/assistant.js"></script>
+</body>
+</html>
