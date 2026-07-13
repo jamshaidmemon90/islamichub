@@ -141,6 +141,30 @@ const hadithJSON = {
             "author": "Imam at-Tirmidhi",
             "total_hadith": 402,
             "chapters": []
+        },
+        {
+            "id": "nawawi",
+            "name": "Forty Hadith of an-Nawawi",
+            "name_ar": "الأربعون النووية",
+            "author": "Imam an-Nawawi",
+            "total_hadith": 42,
+            "chapters": []
+        },
+        {
+            "id": "qudsi",
+            "name": "Forty Hadith Qudsi",
+            "name_ar": "الحديث القدسي",
+            "author": "Various",
+            "total_hadith": 40,
+            "chapters": []
+        },
+        {
+            "id": "dehlawi",
+            "name": "Forty Hadith of Shah Waliullah",
+            "name_ar": "أربعون حديثا للشاه ولي الله",
+            "author": "Shah Waliullah Dehlawi",
+            "total_hadith": 40,
+            "chapters": []
         }
     ]
 };

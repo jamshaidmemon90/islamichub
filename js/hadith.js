@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!collection) return;
 
         const groupABooks = ['bukhari', 'muslim', 'tirmidhi', 'abudawud', 'nasai', 'ibnmajah', 'malik'];
-        const isGroupA = groupABooks.includes(id);
+        const groupCBooks = ['nawawi', 'qudsi', 'dehlawi'];
 
         hadithReader.innerHTML = `
             <h2 style="color: var(--primary-color); margin-bottom: 2rem;">${collection.name} (${collection.name_ar})</h2>
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        if (isGroupA) {
+        if (groupABooks.includes(id)) {
             // Fetch Arabic and Urdu texts simultaneously for Group A
             Promise.all([
                 fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ara-${id}.min.json`).then(r => r.json()),
@@ -108,6 +108,38 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(err => {
                 console.error("Failed to load hadith API data for Group A", err);
+                hadithReader.innerHTML = `
+                    <h2 style="color: var(--primary-color); margin-bottom: 2rem;">${collection.name} (${collection.name_ar})</h2>
+                    <p style="color:red; text-align:center;">Failed to download Hadith database. Please check your internet connection.</p>
+                `;
+            });
+        } else if (groupCBooks.includes(id)) {
+            // Fetch Arabic and English texts simultaneously for Group C
+            Promise.all([
+                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ara-${id}.min.json`).then(r => r.json()),
+                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/eng-${id}.min.json`).then(r => r.json())
+            ])
+            .then(([araData, engData]) => {
+                currentBookHadiths = [];
+                const engHadiths = engData.hadiths;
+                const araHadiths = araData.hadiths;
+                
+                // Merge them by index (assuming they align)
+                for(let i = 0; i < engHadiths.length; i++) {
+                    currentBookHadiths.push({
+                        number: engHadiths[i].hadithnumber,
+                        reference: engHadiths[i].reference ? `Book ${engHadiths[i].reference.book}, Hadith ${engHadiths[i].reference.hadith}` : `Hadith ${engHadiths[i].hadithnumber}`,
+                        text_ar: araHadiths[i] ? araHadiths[i].text : '',
+                        text_ur: '', // No Urdu translation available in this API
+                        text_en: engHadiths[i].text,
+                        grades: engHadiths[i].grades || []
+                    });
+                }
+                
+                displayHadithCollection();
+            })
+            .catch(err => {
+                console.error("Failed to load hadith API data for Group C", err);
                 hadithReader.innerHTML = `
                     <h2 style="color: var(--primary-color); margin-bottom: 2rem;">${collection.name} (${collection.name_ar})</h2>
                     <p style="color:red; text-align:center;">Failed to download Hadith database. Please check your internet connection.</p>

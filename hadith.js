@@ -101,6 +101,70 @@ const hadithJSON = {
             "author": "Imam Nawawi",
             "total_hadith": 1896,
             "chapters": []
+        },
+        {
+            "id": "darimi",
+            "name": "Sunan al-Darimi",
+            "name_ar": "سنن الدارمي",
+            "author": "Imam al-Darimi",
+            "total_hadith": 3406,
+            "chapters": []
+        },
+        {
+            "id": "aladab_almufrad",
+            "name": "Al-Adab Al-Mufrad",
+            "name_ar": "الأدب المفرد",
+            "author": "Imam al-Bukhari",
+            "total_hadith": 1326,
+            "chapters": []
+        },
+        {
+            "id": "bulugh_almaram",
+            "name": "Bulugh al-Maram",
+            "name_ar": "بلوغ المرام",
+            "author": "Ibn Hajar al-Asqalani",
+            "total_hadith": 1767,
+            "chapters": []
+        },
+        {
+            "id": "mishkat_almasabih",
+            "name": "Mishkat al-Masabih",
+            "name_ar": "مشكاة المصابيح",
+            "author": "Imam Wali-ud-Din Al-Tabrizi",
+            "total_hadith": 4428,
+            "chapters": []
+        },
+        {
+            "id": "shamail_muhammadiyah",
+            "name": "Shama'il Muhammadiyah",
+            "name_ar": "الشمائل المحمدية",
+            "author": "Imam at-Tirmidhi",
+            "total_hadith": 402,
+            "chapters": []
+        },
+        {
+            "id": "nawawi",
+            "name": "Forty Hadith of an-Nawawi",
+            "name_ar": "الأربعون النووية",
+            "author": "Imam an-Nawawi",
+            "total_hadith": 42,
+            "chapters": []
+        },
+        {
+            "id": "qudsi",
+            "name": "Forty Hadith Qudsi",
+            "name_ar": "الحديث القدسي",
+            "author": "Various",
+            "total_hadith": 40,
+            "chapters": []
+        },
+        {
+            "id": "dehlawi",
+            "name": "Forty Hadith of Shah Waliullah",
+            "name_ar": "أربعون حديثا للشاه ولي الله",
+            "author": "Shah Waliullah Dehlawi",
+            "total_hadith": 40,
+            "chapters": []
         }
     ]
 };
