@@ -2,6 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let hadithData = [];
     let currentCollectionId = null;
 
+    // User display preferences for translations
+    let showArabic = true;
+    let showUrdu = true;
+    let showEnglish = true;
+    let autoTranslateUrdu = false;
+
+    // Cache for translated hadiths to avoid redundant API calls
+    const translationCache = new Map();
+
     const collectionList = document.getElementById('collection-list');
     const hadithReader = document.getElementById('hadith-reader');
     const searchInput = document.getElementById('hadith-search');
@@ -66,6 +75,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function translateText(text) {
+        if (!text) return '';
+        const trimmed = text.trim();
+        if (translationCache.has(trimmed)) {
+            return translationCache.get(trimmed);
+        }
+
+        try {
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ur&dt=t&q=${encodeURIComponent(trimmed)}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Translation request failed');
+            const data = await response.json();
+            if (data && data[0]) {
+                const translated = data[0].map(s => s[0]).join('');
+                translationCache.set(trimmed, translated);
+                return translated;
+            }
+            return '';
+        } catch (error) {
+            console.error('Translation error:', error);
+            throw error;
+        }
+    }
+
     function loadCollection(id) {
         currentCollectionId = id;
         const collection = hadithData.find(c => c.id === id);
@@ -83,15 +116,17 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         if (groupABooks.includes(id)) {
-            // Fetch Arabic and Urdu texts simultaneously for Group A
+            // Fetch Arabic, Urdu, and English texts simultaneously for Group A
             Promise.all([
                 fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ara-${id}.min.json`).then(r => r.json()),
-                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/urd-${id}.min.json`).then(r => r.json())
+                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/urd-${id}.min.json`).then(r => r.json()),
+                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/eng-${id}.min.json`).then(r => r.json()).catch(() => null)
             ])
-            .then(([araData, urdData]) => {
+            .then(([araData, urdData, engData]) => {
                 currentBookHadiths = [];
                 const urdHadiths = urdData.hadiths;
                 const araHadiths = araData.hadiths;
+                const engHadiths = engData ? engData.hadiths : [];
                 
                 // Merge them by index (assuming they align, which they do in this API)
                 for(let i = 0; i < urdHadiths.length; i++) {
@@ -100,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         reference: urdHadiths[i].reference ? `Book ${urdHadiths[i].reference.book}, Hadith ${urdHadiths[i].reference.hadith}` : `Hadith ${urdHadiths[i].hadithnumber}`,
                         text_ar: araHadiths[i] ? araHadiths[i].text : '',
                         text_ur: urdHadiths[i].text,
+                        text_en: engHadiths[i] ? engHadiths[i].text : '',
                         grades: urdHadiths[i].grades || []
                     });
                 }
@@ -190,22 +226,240 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function renderHadithCardHtml(hadith) {
+        let gradeHtml = '';
+        if (hadith.grades && hadith.grades.length > 0) {
+            gradeHtml = `<span style="background: var(--primary-color); color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-left: 0.5rem;">${hadith.grades[0].grade}</span>`;
+        }
+        
+        const urduVal = hadith.text_ur || '';
+        const engVal = hadith.text_en || '';
+        const arVal = hadith.text_ar || '';
+        const isGroupA = ['bukhari', 'muslim', 'tirmidhi', 'abudawud', 'nasai', 'ibnmajah', 'malik'].includes(currentCollectionId);
+        const showTranslateBtn = !urduVal && engVal && !isGroupA;
+
+        return `
+            <div class="hadith-card" data-id="${hadith.number}">
+                <div class="hadith-meta">
+                    <span>${hadith.reference} ${gradeHtml}</span>
+                </div>
+                <div class="arabic-text" style="${showArabic ? 'display: block;' : 'display: none;'} font-size: 1.5rem; text-align: right;">${arVal}</div>
+                
+                <div class="hadith-text urdu-text" style="${(showUrdu && urduVal) ? 'display: block;' : 'display: none;'}">
+                    ${urduVal}
+                </div>
+
+                ${engVal ? `
+                <div class="hadith-text english-text" style="${showEnglish ? 'display: block;' : 'display: none;'} font-size: 1.1rem; text-align: left; direction: ltr; margin-top: 1rem; color: var(--text-color);">
+                    ${hadith.narrator_en ? `<p style="margin-bottom: 0.5rem;"><strong>${hadith.narrator_en}</strong></p>` : ''}
+                    <p style="line-height: 1.6;">${engVal}</p>
+                </div>
+                ` : ''}
+
+                ${showTranslateBtn ? `
+                <div class="translate-action-container" style="${(showUrdu && !autoTranslateUrdu) ? 'display: flex;' : 'display: none;'}">
+                    <button class="translate-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: middle;"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        Translate to Urdu (ترجمہ کریں)
+                    </button>
+                </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    function bindCardEvents(container) {
+        const cards = container.querySelectorAll('.hadith-card');
+        cards.forEach(card => {
+            const translateBtn = card.querySelector('.translate-btn');
+            if (translateBtn && !translateBtn.dataset.listenerBound) {
+                translateBtn.dataset.listenerBound = 'true';
+                translateBtn.addEventListener('click', async () => {
+                    const urduContainer = card.querySelector('.urdu-text');
+                    const englishContainer = card.querySelector('.english-text p:last-child');
+                    const translateBtnContainer = card.querySelector('.translate-action-container');
+                    
+                    if (urduContainer && englishContainer) {
+                        translateBtn.disabled = true;
+                        translateBtn.innerHTML = `<span class="btn-spinner"></span> Translating...`;
+                        
+                        try {
+                            const translated = await translateText(englishContainer.innerText);
+                            const hadithId = card.dataset.id;
+                            const hadithObj = currentBookHadiths.find(h => String(h.number) === String(hadithId));
+                            if (hadithObj) {
+                                hadithObj.text_ur = translated;
+                            }
+                            
+                            urduContainer.innerHTML = translated;
+                            urduContainer.style.display = showUrdu ? 'block' : 'none';
+                            if (translateBtnContainer) translateBtnContainer.style.display = 'none';
+                        } catch (err) {
+                            console.error(err);
+                            translateBtn.disabled = false;
+                            translateBtn.innerHTML = `Retry Translation`;
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    async function triggerAutoTranslations() {
+        if (!autoTranslateUrdu || !showUrdu) return;
+
+        const cards = document.querySelectorAll('.hadith-card');
+        for (const card of cards) {
+            const urduContainer = card.querySelector('.urdu-text');
+            const englishContainer = card.querySelector('.english-text p:last-child');
+            const translateBtnContainer = card.querySelector('.translate-action-container');
+            const translateBtn = card.querySelector('.translate-btn');
+            
+            if (urduContainer && urduContainer.innerHTML.trim() === '' && englishContainer) {
+                const englishText = englishContainer.innerText;
+                if (!englishText) continue;
+
+                if (translateBtn) {
+                    translateBtn.disabled = true;
+                    translateBtn.innerHTML = `<span class="btn-spinner"></span> Translating...`;
+                }
+
+                try {
+                    const translated = await translateText(englishText);
+                    const hadithId = card.dataset.id;
+                    const hadithObj = currentBookHadiths.find(h => String(h.number) === String(hadithId));
+                    if (hadithObj) {
+                        hadithObj.text_ur = translated;
+                    }
+
+                    urduContainer.innerHTML = translated;
+                    urduContainer.style.display = showUrdu ? 'block' : 'none';
+                    if (translateBtnContainer) translateBtnContainer.style.display = 'none';
+                } catch (err) {
+                    console.error("Auto-translation failed for Hadith", err);
+                    if (translateBtn) {
+                        translateBtn.disabled = false;
+                        translateBtn.innerHTML = `Retry Translation`;
+                    }
+                }
+            }
+        }
+    }
+
+    function applyDisplaySettings() {
+        const arabicTexts = document.querySelectorAll('.hadith-card .arabic-text');
+        const urduTexts = document.querySelectorAll('.hadith-card .urdu-text');
+        const englishTexts = document.querySelectorAll('.hadith-card .english-text');
+        const translateBtns = document.querySelectorAll('.hadith-card .translate-action-container');
+
+        arabicTexts.forEach(el => el.style.display = showArabic ? 'block' : 'none');
+        
+        urduTexts.forEach(el => {
+            const hasContent = el.innerHTML.trim() !== '';
+            el.style.display = (showUrdu && hasContent) ? 'block' : 'none';
+        });
+
+        englishTexts.forEach(el => el.style.display = showEnglish ? 'block' : 'none');
+
+        translateBtns.forEach(el => {
+            const card = el.closest('.hadith-card');
+            const hasUrdu = card.querySelector('.urdu-text').innerHTML.trim() !== '';
+            el.style.display = (showUrdu && !hasUrdu && !autoTranslateUrdu) ? 'flex' : 'none';
+        });
+    }
+
+    function renderReaderSkeleton(collection, isGroupA) {
+        const settingsHtml = `
+            <div class="reader-settings-panel">
+                <div class="reader-settings-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-color); vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span>Display Options (نمائش کے اختیارات)</span>
+                </div>
+                <div class="reader-settings-controls">
+                    <label class="settings-label">
+                        <input type="checkbox" id="toggle-arabic" class="settings-checkbox" ${showArabic ? 'checked' : ''}>
+                        <span>Arabic (عربی)</span>
+                    </label>
+                    <label class="settings-label">
+                        <input type="checkbox" id="toggle-urdu" class="settings-checkbox" ${showUrdu ? 'checked' : ''}>
+                        <span>Urdu (اردو)</span>
+                    </label>
+                    <label class="settings-label">
+                        <input type="checkbox" id="toggle-english" class="settings-checkbox" ${showEnglish ? 'checked' : ''}>
+                        <span>English</span>
+                    </label>
+                    ${!isGroupA ? `
+                    <label class="settings-label" style="border-left: 1px solid var(--border-color); padding-left: 1rem; margin-left: 0.5rem;">
+                        <input type="checkbox" id="toggle-autotranslate" class="settings-checkbox" ${autoTranslateUrdu ? 'checked' : ''}>
+                        <span style="color: var(--accent-color); font-weight: 600;">Auto-Translate to Urdu (خودکار اردو ترجمہ)</span>
+                    </label>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+
+        hadithReader.innerHTML = `
+            <h2 style="color: var(--primary-color); margin-bottom: 0.5rem;">${collection.name} (${collection.name_ar})</h2>
+            <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">Total Hadiths: ${currentBookHadiths.length}</p>
+            ${settingsHtml}
+            <div id="hadith-list-container"></div>
+            <div class="text-center" style="margin-top: 2rem;">
+                <button id="load-more-btn" class="btn btn-primary" style="padding: 0.75rem 2rem;">Load More</button>
+            </div>
+        `;
+
+        document.getElementById('toggle-arabic').addEventListener('change', (e) => {
+            showArabic = e.target.checked;
+            applyDisplaySettings();
+        });
+        document.getElementById('toggle-urdu').addEventListener('change', (e) => {
+            showUrdu = e.target.checked;
+            applyDisplaySettings();
+            if (showUrdu && autoTranslateUrdu) {
+                triggerAutoTranslations();
+            }
+        });
+        document.getElementById('toggle-english').addEventListener('change', (e) => {
+            showEnglish = e.target.checked;
+            applyDisplaySettings();
+        });
+        
+        const autoTranslateEl = document.getElementById('toggle-autotranslate');
+        if (autoTranslateEl) {
+            autoTranslateEl.addEventListener('change', (e) => {
+                autoTranslateUrdu = e.target.checked;
+                if (autoTranslateUrdu) {
+                    showUrdu = true;
+                    const urduCheckbox = document.getElementById('toggle-urdu');
+                    if (urduCheckbox) urduCheckbox.checked = true;
+                }
+                applyDisplaySettings();
+                if (autoTranslateUrdu) {
+                    triggerAutoTranslations();
+                }
+            });
+        }
+
+        document.getElementById('load-more-btn').addEventListener('click', loadMoreHadiths);
+    }
+
     function displayHadithCollection() {
         const collection = hadithData.find(c => c.id === currentCollectionId);
         if (!collection) return;
 
         currentPage = 0;
         
-        hadithReader.innerHTML = `
-            <h2 style="color: var(--primary-color); margin-bottom: 1rem;">${collection.name} (${collection.name_ar})</h2>
-            <p style="margin-bottom: 2rem; color: var(--text-secondary);">Total Hadiths: ${currentBookHadiths.length}</p>
-            <div id="hadith-list-container"></div>
-            <div class="text-center" style="margin-top: 2rem;">
-                <button id="load-more-btn" class="btn btn-primary" style="padding: 0.75rem 2rem;">Load More</button>
-            </div>
-        `;
+        const isGroupA = ['bukhari', 'muslim', 'tirmidhi', 'abudawud', 'nasai', 'ibnmajah', 'malik'].includes(currentCollectionId);
         
-        document.getElementById('load-more-btn').addEventListener('click', loadMoreHadiths);
+        if (isGroupA) {
+            showUrdu = true;
+            showEnglish = false;
+        } else {
+            showEnglish = true;
+            showUrdu = true;
+        }
+
+        renderReaderSkeleton(collection, isGroupA);
         loadMoreHadiths();
     }
 
@@ -220,35 +474,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let html = '';
         pageHadiths.forEach(hadith => {
-            let gradeHtml = '';
-            if (hadith.grades && hadith.grades.length > 0) {
-                gradeHtml = `<span style="background: var(--primary-color); color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-left: 0.5rem;">${hadith.grades[0].grade}</span>`;
-            }
-            
-            let textHtml = '';
-            if (hadith.text_ur) {
-                textHtml = `<div class="hadith-text urdu-text" style="font-size: 1.3rem; text-align: right; direction: rtl; margin-top: 1rem; color: var(--text-color);">${hadith.text_ur}</div>`;
-            } else if (hadith.text_en) {
-                textHtml = `
-                    <div class="hadith-text english-text" style="font-size: 1.1rem; text-align: left; direction: ltr; margin-top: 1rem; color: var(--text-color);">
-                        ${hadith.narrator_en ? `<p style="margin-bottom: 0.5rem;"><strong>${hadith.narrator_en}</strong></p>` : ''}
-                        <p style="line-height: 1.6;">${hadith.text_en}</p>
-                    </div>
-                `;
-            }
-            
-            html += `
-                <div class="hadith-card">
-                    <div class="hadith-meta">
-                        <span>${hadith.reference} ${gradeHtml}</span>
-                    </div>
-                    <div class="arabic-text" style="font-size: 1.5rem; text-align: right;">${hadith.text_ar}</div>
-                    ${textHtml}
-                </div>
-            `;
+            html += renderHadithCardHtml(hadith);
         });
 
         container.insertAdjacentHTML('beforeend', html);
+
+        bindCardEvents(container);
+        applyDisplaySettings();
+        
+        if (autoTranslateUrdu) {
+            triggerAutoTranslations();
+        }
+
         currentPage++;
 
         if (end >= currentBookHadiths.length) {
@@ -291,38 +528,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let html = '';
-        const matchesToShow = filtered.slice(0, 200); // Prevents DOM freeze on high match counts
+        const matchesToShow = filtered.slice(0, 200);
 
         matchesToShow.forEach(hadith => {
-            let gradeHtml = '';
-            if (hadith.grades && hadith.grades.length > 0) {
-                gradeHtml = `<span style="background: var(--primary-color); color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-left: 0.5rem;">${hadith.grades[0].grade}</span>`;
-            }
-            
-            let textHtml = '';
-            if (hadith.text_ur) {
-                textHtml = `<div class="hadith-text urdu-text" style="font-size: 1.3rem; text-align: right; direction: rtl; margin-top: 1rem; color: var(--text-color);">${hadith.text_ur}</div>`;
-            } else if (hadith.text_en) {
-                textHtml = `
-                    <div class="hadith-text english-text" style="font-size: 1.1rem; text-align: left; direction: ltr; margin-top: 1rem; color: var(--text-color);">
-                        ${hadith.narrator_en ? `<p style="margin-bottom: 0.5rem;"><strong>${hadith.narrator_en}</strong></p>` : ''}
-                        <p style="line-height: 1.6;">${hadith.text_en}</p>
-                    </div>
-                `;
-            }
-            
-            html += `
-                <div class="hadith-card">
-                    <div class="hadith-meta">
-                        <span>${hadith.reference} ${gradeHtml}</span>
-                    </div>
-                    <div class="arabic-text" style="font-size: 1.5rem; text-align: right;">${hadith.text_ar}</div>
-                    ${textHtml}
-                </div>
-            `;
+            html += renderHadithCardHtml(hadith);
         });
 
         container.innerHTML = html;
+
+        bindCardEvents(container);
+        applyDisplaySettings();
+        
+        if (autoTranslateUrdu) {
+            triggerAutoTranslations();
+        }
 
         if (filtered.length > 200) {
             container.insertAdjacentHTML('beforeend', `<p style="color: var(--text-secondary); text-align: center; margin-top: 2rem;">Showing first 200 matches. Please refine your search term for more specific results.</p>`);
