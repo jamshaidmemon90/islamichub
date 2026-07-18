@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const daysInMonth = new Date(year, month, 0).getDate();
             const daysData = [];
-            const offset = parseInt(localStorage.getItem('hijri_offset') || '-1');
+            const offset = -1; // Hardcoded offset of -1 day
 
             for (let d = 1; d <= daysInMonth; d++) {
                 const gregDate = new Date(year, month - 1, d);
@@ -56,11 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(error);
         }
     }
-
-    // Reactive reload on offset change
-    window.addEventListener('hijriOffsetChanged', () => {
-        loadCalendar(currentMonth, currentYear);
-    });
 
     function renderCalendar(daysData, month, year) {
         calendarDays.innerHTML = '';
