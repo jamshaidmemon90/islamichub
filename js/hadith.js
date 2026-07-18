@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const engVal = hadith.text_en || '';
         const arVal = hadith.text_ar || '';
         const isGroupA = ['bukhari', 'muslim', 'tirmidhi', 'abudawud', 'nasai', 'ibnmajah', 'malik'].includes(currentCollectionId);
-        const showTranslateBtn = !urduVal && engVal && !isGroupA;
+        const showTranslateBtn = !urduVal && (engVal || arVal) && !isGroupA;
 
         return `
             <div class="hadith-card" data-id="${hadith.number}">
@@ -277,14 +277,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 translateBtn.addEventListener('click', async () => {
                     const urduContainer = card.querySelector('.urdu-text');
                     const englishContainer = card.querySelector('.english-text p:last-child');
+                    const arabicContainer = card.querySelector('.arabic-text');
                     const translateBtnContainer = card.querySelector('.translate-action-container');
                     
-                    if (urduContainer && englishContainer) {
+                    if (urduContainer && (englishContainer || arabicContainer)) {
                         translateBtn.disabled = true;
                         translateBtn.innerHTML = `<span class="btn-spinner"></span> Translating...`;
                         
                         try {
-                            const translated = await translateText(englishContainer.innerText);
+                            const sourceText = englishContainer ? englishContainer.innerText : arabicContainer.innerText;
+                            const translated = await translateText(sourceText);
                             const hadithId = card.dataset.id;
                             const hadithObj = currentBookHadiths.find(h => String(h.number) === String(hadithId));
                             if (hadithObj) {
@@ -312,12 +314,13 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const card of cards) {
             const urduContainer = card.querySelector('.urdu-text');
             const englishContainer = card.querySelector('.english-text p:last-child');
+            const arabicContainer = card.querySelector('.arabic-text');
             const translateBtnContainer = card.querySelector('.translate-action-container');
             const translateBtn = card.querySelector('.translate-btn');
             
-            if (urduContainer && urduContainer.innerHTML.trim() === '' && englishContainer) {
-                const englishText = englishContainer.innerText;
-                if (!englishText) continue;
+            if (urduContainer && urduContainer.innerHTML.trim() === '' && (englishContainer || arabicContainer)) {
+                const sourceText = englishContainer ? englishContainer.innerText : arabicContainer.innerText;
+                if (!sourceText) continue;
 
                 if (translateBtn) {
                     translateBtn.disabled = true;
@@ -325,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 try {
-                    const translated = await translateText(englishText);
+                    const translated = await translateText(sourceText);
                     const hadithId = card.dataset.id;
                     const hadithObj = currentBookHadiths.find(h => String(h.number) === String(hadithId));
                     if (hadithObj) {
