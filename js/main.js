@@ -27,35 +27,126 @@ document.addEventListener('DOMContentLoaded', () => {
     initIslamicDate();
 });
 
+function formatHijri(date) {
+    try {
+        return new Intl.DateTimeFormat('ar-TN-u-ca-islamic', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        }).format(date);
+    } catch (e) {
+        return 'Islamic Date';
+    }
+}
+
 function initIslamicDate() {
     const navContainer = document.querySelector('.nav-container');
     if (!navContainer) return;
 
-    const dateContainer = document.createElement('div');
-    dateContainer.className = 'hijri-date';
-    dateContainer.style.cssText = 'color: var(--primary-color); font-weight: 500; font-size: 0.9rem; margin: 0 1rem; display: flex; align-items: center;';
+    const container = document.createElement('div');
+    container.className = 'hijri-container';
 
-    try {
-        const today = new Date();
-        const hijriDate = new Intl.DateTimeFormat('ar-TN-u-ca-islamic', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        }).format(today);
-        
-        dateContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> ${hijriDate}`;
-    } catch (e) {
-        // Fallback if browser doesn't support Islamic calendar format
-        dateContainer.textContent = 'Islamic Date';
-    }
+    const btn = document.createElement('button');
+    btn.id = 'hijri-date-btn';
+    btn.className = 'hijri-date-btn';
+    btn.title = 'Click to adjust Islamic date';
+    
+    const dropdown = document.createElement('div');
+    dropdown.id = 'hijri-dropdown';
+    dropdown.className = 'hijri-dropdown';
+    
+    container.appendChild(btn);
+    container.appendChild(dropdown);
 
-    // Insert before the theme toggle
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
-        navContainer.insertBefore(dateContainer, themeToggle);
+        navContainer.insertBefore(container, themeToggle);
     } else {
-        navContainer.appendChild(dateContainer);
+        navContainer.appendChild(container);
     }
+
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = dropdown.classList.contains('show');
+        dropdown.classList.toggle('show', !isOpen);
+        btn.classList.toggle('active', !isOpen);
+    });
+
+    document.addEventListener('click', () => {
+        dropdown.classList.remove('show');
+        btn.classList.remove('active');
+    });
+
+    dropdown.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    updateAllHijriDates();
+}
+
+function populateDropdownOptions() {
+    const dropdown = document.getElementById('hijri-dropdown');
+    if (!dropdown) return;
+    
+    dropdown.innerHTML = '<div class="hijri-dropdown-title">Adjust Hijri Date</div>';
+    
+    const currentOffset = parseInt(localStorage.getItem('hijri_offset') || '-1');
+    const offsets = [
+        { value: -2, label: '-2 Days' },
+        { value: -1, label: '-1 Day' },
+        { value: 0, label: 'Standard (0)' },
+        { value: 1, label: '+1 Day' },
+        { value: 2, label: '+2 Days' }
+    ];
+    
+    offsets.forEach(opt => {
+        const optionBtn = document.createElement('button');
+        optionBtn.className = `hijri-option-btn${opt.value === currentOffset ? ' active' : ''}`;
+        optionBtn.dataset.offset = opt.value;
+        
+        const previewDate = new Date();
+        previewDate.setDate(previewDate.getDate() + opt.value);
+        const formattedPreview = formatHijri(previewDate);
+        
+        optionBtn.innerHTML = `
+            <span>${opt.label}</span>
+            <span class="offset-preview">${formattedPreview}</span>
+        `;
+        
+        optionBtn.addEventListener('click', () => {
+            localStorage.setItem('hijri_offset', opt.value.toString());
+            updateAllHijriDates();
+            
+            const event = new CustomEvent('hijriOffsetChanged', { detail: { offset: opt.value } });
+            window.dispatchEvent(event);
+            
+            const dropdownEl = document.getElementById('hijri-dropdown');
+            const btnEl = document.getElementById('hijri-date-btn');
+            if (dropdownEl) dropdownEl.classList.remove('show');
+            if (btnEl) btnEl.classList.remove('active');
+        });
+        
+        dropdown.appendChild(optionBtn);
+    });
+}
+
+function updateAllHijriDates() {
+    const btn = document.getElementById('hijri-date-btn');
+    if (!btn) return;
+    
+    const today = new Date();
+    const offset = parseInt(localStorage.getItem('hijri_offset') || '-1');
+    today.setDate(today.getDate() + offset);
+    
+    const formattedDate = formatHijri(today);
+    
+    btn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <span>${formattedDate}</span>
+        <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    `;
+    
+    populateDropdownOptions();
 }
 
 // Theme Management

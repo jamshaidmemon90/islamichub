@@ -10,22 +10,57 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentMonth = currentDate.getMonth() + 1; // 1-12
     let currentYear = currentDate.getFullYear();
 
-    async function loadCalendar(month, year) {
+    function loadCalendar(month, year) {
         calendarDays.innerHTML = '<div style="grid-column: 1 / -1; padding: 2rem;">Loading...</div>';
         try {
-            const response = await fetch(`https://api.aladhan.com/v1/gToHCalendar/${month}/${year}`);
-            const data = await response.json();
-            
-            if (data.code === 200) {
-                renderCalendar(data.data, month, year);
-            } else {
-                throw new Error("API Error");
+            const daysInMonth = new Date(year, month, 0).getDate();
+            const daysData = [];
+            const offset = parseInt(localStorage.getItem('hijri_offset') || '-1');
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const gregDate = new Date(year, month - 1, d);
+                const hijriDate = new Date(gregDate);
+                hijriDate.setDate(hijriDate.getDate() + offset);
+
+                const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+                
+                let details = { day: d.toString(), month: 'Islamic', year: '1448' };
+                try {
+                    const parts = formatter.formatToParts(hijriDate);
+                    parts.forEach(part => {
+                        if (part.type !== 'literal') {
+                            details[part.type] = part.value;
+                        }
+                    });
+                } catch (e) {
+                    console.error('Failed to parse date parts:', e);
+                }
+
+                daysData.push({
+                    gregorian: { day: d.toString() },
+                    hijri: {
+                        day: details.day,
+                        month: { en: details.month },
+                        year: details.year
+                    }
+                });
             }
+
+            renderCalendar(daysData, month, year);
         } catch (error) {
-            calendarDays.innerHTML = '<div style="grid-column: 1 / -1; padding: 2rem; color: red;">Failed to load calendar data.</div>';
+            calendarDays.innerHTML = '<div style="grid-column: 1 / -1; padding: 2rem; color: red;">Failed to generate calendar.</div>';
             console.error(error);
         }
     }
+
+    // Reactive reload on offset change
+    window.addEventListener('hijriOffsetChanged', () => {
+        loadCalendar(currentMonth, currentYear);
+    });
 
     function renderCalendar(daysData, month, year) {
         calendarDays.innerHTML = '';
