@@ -99,6 +99,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function fetchWithTimeout(url, options = {}, timeout = 6000) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        try {
+            const response = await fetch(url, {
+                ...options,
+                signal: controller.signal
+            });
+            clearTimeout(id);
+            return response;
+        } catch (e) {
+            clearTimeout(id);
+            throw e;
+        }
+    }
+
+    async function fetchHadithEdition(lang, book) {
+        const filename = `${lang}-${book}.min.json`;
+        const cdns = [
+            'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/',
+            'https://fastly.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/',
+            'https://gcore.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/'
+        ];
+
+        let lastError = null;
+        for (const cdn of cdns) {
+            const url = cdn + filename;
+            try {
+                const response = await fetchWithTimeout(url, {}, 6000);
+                if (response.ok) {
+                    return await response.json();
+                }
+                throw new Error(`HTTP status ${response.status}`);
+            } catch (e) {
+                console.warn(`Failed to fetch from ${cdn}:`, e.message);
+                lastError = e;
+            }
+        }
+        throw lastError || new Error('All CDNs failed');
+    }
+
     function loadCollection(id) {
         currentCollectionId = id;
         const collection = hadithData.find(c => c.id === id);
@@ -111,16 +152,16 @@ document.addEventListener('DOMContentLoaded', () => {
             <h2 style="color: var(--primary-color); margin-bottom: 2rem;">${collection.name} (${collection.name_ar})</h2>
             <div class="loader-container">
                 <div class="loader"></div>
-                <p style="margin-left:1rem;">Downloading complete database (this may take a moment)...</p>
+                <p style="margin-left:1rem;">Downloading complete database (approx. 10-15MB, this may take a moment)...</p>
             </div>
         `;
 
         if (groupABooks.includes(id)) {
-            // Fetch Arabic, Urdu, and English texts simultaneously for Group A
+            // Fetch Arabic, Urdu, and English texts simultaneously for Group A with CDN fallback
             Promise.all([
-                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ara-${id}.min.json`).then(r => r.json()),
-                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/urd-${id}.min.json`).then(r => r.json()),
-                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/eng-${id}.min.json`).then(r => r.json()).catch(() => null)
+                fetchHadithEdition('ara', id),
+                fetchHadithEdition('urd', id),
+                fetchHadithEdition('eng', id).catch(() => null)
             ])
             .then(([araData, urdData, engData]) => {
                 currentBookHadiths = [];
@@ -128,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const araHadiths = araData.hadiths;
                 const engHadiths = engData ? engData.hadiths : [];
                 
-                // Merge them by index (assuming they align, which they do in this API)
+                // Merge them by index
                 for(let i = 0; i < urdHadiths.length; i++) {
                     currentBookHadiths.push({
                         number: urdHadiths[i].hadithnumber,
@@ -150,23 +191,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             });
         } else if (groupCBooks.includes(id)) {
-            // Fetch Arabic and English texts simultaneously for Group C
+            // Fetch Arabic and English texts simultaneously for Group C with CDN fallback
             Promise.all([
-                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ara-${id}.min.json`).then(r => r.json()),
-                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/eng-${id}.min.json`).then(r => r.json())
+                fetchHadithEdition('ara', id),
+                fetchHadithEdition('eng', id)
             ])
             .then(([araData, engData]) => {
                 currentBookHadiths = [];
                 const engHadiths = engData.hadiths;
                 const araHadiths = araData.hadiths;
                 
-                // Merge them by index (assuming they align)
+                // Merge them by index
                 for(let i = 0; i < engHadiths.length; i++) {
                     currentBookHadiths.push({
                         number: engHadiths[i].hadithnumber,
                         reference: engHadiths[i].reference ? `Book ${engHadiths[i].reference.book}, Hadith ${engHadiths[i].reference.hadith}` : `Hadith ${engHadiths[i].hadithnumber}`,
                         text_ar: araHadiths[i] ? araHadiths[i].text : '',
-                        text_ur: '', // No Urdu translation available in this API
+                        text_ur: '', 
                         text_en: engHadiths[i].text,
                         grades: engHadiths[i].grades || []
                     });
