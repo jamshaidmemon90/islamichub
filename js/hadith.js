@@ -169,17 +169,68 @@ document.addEventListener('DOMContentLoaded', () => {
                 const araHadiths = araData.hadiths;
                 const engHadiths = engData ? engData.hadiths : [];
                 
-                // Merge them by index
-                for(let i = 0; i < urdHadiths.length; i++) {
+                // Create maps for lookup by hadithnumber
+                const araMap = new Map();
+                araHadiths.forEach(h => {
+                    if (h && h.hadithnumber !== undefined) {
+                        araMap.set(String(h.hadithnumber), h);
+                    }
+                });
+                
+                const engMap = new Map();
+                engHadiths.forEach(h => {
+                    if (h && h.hadithnumber !== undefined) {
+                        engMap.set(String(h.hadithnumber), h);
+                    }
+                });
+                
+                const processedNumbers = new Set();
+                
+                // Merge based on Urdu as the baseline
+                urdHadiths.forEach(urdH => {
+                    const numStr = String(urdH.hadithnumber);
+                    processedNumbers.add(numStr);
+                    
+                    const araH = araMap.get(numStr);
+                    const engH = engMap.get(numStr);
+                    
                     currentBookHadiths.push({
-                        number: urdHadiths[i].hadithnumber,
-                        reference: urdHadiths[i].reference ? `Book ${urdHadiths[i].reference.book}, Hadith ${urdHadiths[i].reference.hadith}` : `Hadith ${urdHadiths[i].hadithnumber}`,
-                        text_ar: araHadiths[i] ? araHadiths[i].text : '',
-                        text_ur: urdHadiths[i].text,
-                        text_en: engHadiths[i] ? engHadiths[i].text : '',
-                        grades: urdHadiths[i].grades || []
+                        number: urdH.hadithnumber,
+                        reference: urdH.reference ? `Book ${urdH.reference.book}, Hadith ${urdH.reference.hadith}` : `Hadith ${urdH.hadithnumber}`,
+                        text_ar: araH ? araH.text : '',
+                        text_ur: urdH.text || '',
+                        text_en: engH ? engH.text : '',
+                        grades: urdH.grades || (araH ? araH.grades : []) || []
                     });
-                }
+                });
+                
+                // Add any Arabic hadiths not present in Urdu database
+                araHadiths.forEach(araH => {
+                    const numStr = String(araH.hadithnumber);
+                    if (!processedNumbers.has(numStr)) {
+                        processedNumbers.add(numStr);
+                        const engH = engMap.get(numStr);
+                        
+                        currentBookHadiths.push({
+                            number: araH.hadithnumber,
+                            reference: araH.reference ? `Book ${araH.reference.book}, Hadith ${araH.reference.hadith}` : `Hadith ${araH.hadithnumber}`,
+                            text_ar: araH.text || '',
+                            text_ur: '',
+                            text_en: engH ? engH.text : '',
+                            grades: araH.grades || []
+                        });
+                    }
+                });
+                
+                // Sort numerically/naturally by hadithnumber
+                currentBookHadiths.sort((a, b) => {
+                    const numA = parseFloat(a.number);
+                    const numB = parseFloat(b.number);
+                    if (!isNaN(numA) && !isNaN(numB)) {
+                        return numA - numB;
+                    }
+                    return String(a.number).localeCompare(String(b.number), undefined, { numeric: true, sensitivity: 'base' });
+                });
                 
                 displayHadithCollection();
             })
@@ -201,17 +252,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 const engHadiths = engData.hadiths;
                 const araHadiths = araData.hadiths;
                 
-                // Merge them by index
-                for(let i = 0; i < engHadiths.length; i++) {
+                const araMap = new Map();
+                araHadiths.forEach(h => {
+                    if (h && h.hadithnumber !== undefined) {
+                        araMap.set(String(h.hadithnumber), h);
+                    }
+                });
+                
+                const processedNumbers = new Set();
+                
+                engHadiths.forEach(engH => {
+                    const numStr = String(engH.hadithnumber);
+                    processedNumbers.add(numStr);
+                    
+                    const araH = araMap.get(numStr);
+                    
                     currentBookHadiths.push({
-                        number: engHadiths[i].hadithnumber,
-                        reference: engHadiths[i].reference ? `Book ${engHadiths[i].reference.book}, Hadith ${engHadiths[i].reference.hadith}` : `Hadith ${engHadiths[i].hadithnumber}`,
-                        text_ar: araHadiths[i] ? araHadiths[i].text : '',
+                        number: engH.hadithnumber,
+                        reference: engH.reference ? `Book ${engH.reference.book}, Hadith ${engH.reference.hadith}` : `Hadith ${engH.hadithnumber}`,
+                        text_ar: araH ? araH.text : '',
                         text_ur: '', 
-                        text_en: engHadiths[i].text,
-                        grades: engHadiths[i].grades || []
+                        text_en: engH.text || '',
+                        grades: engH.grades || (araH ? araH.grades : []) || []
                     });
-                }
+                });
+                
+                araHadiths.forEach(araH => {
+                    const numStr = String(araH.hadithnumber);
+                    if (!processedNumbers.has(numStr)) {
+                        processedNumbers.add(numStr);
+                        currentBookHadiths.push({
+                            number: araH.hadithnumber,
+                            reference: araH.reference ? `Book ${araH.reference.book}, Hadith ${araH.reference.hadith}` : `Hadith ${araH.hadithnumber}`,
+                            text_ar: araH.text || '',
+                            text_ur: '',
+                            text_en: '',
+                            grades: araH.grades || []
+                        });
+                    }
+                });
+                
+                currentBookHadiths.sort((a, b) => {
+                    const numA = parseFloat(a.number);
+                    const numB = parseFloat(b.number);
+                    if (!isNaN(numA) && !isNaN(numB)) {
+                        return numA - numB;
+                    }
+                    return String(a.number).localeCompare(String(b.number), undefined, { numeric: true, sensitivity: 'base' });
+                });
                 
                 displayHadithCollection();
             })
