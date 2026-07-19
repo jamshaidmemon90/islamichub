@@ -365,14 +365,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const engVal = hadith.text_en || '';
         const arVal = hadith.text_ar || '';
         const isGroupA = ['bukhari', 'muslim', 'tirmidhi', 'abudawud', 'nasai', 'ibnmajah', 'malik'].includes(currentCollectionId);
-        const showTranslateBtn = !urduVal && (engVal || arVal) && !isGroupA;
+        const showTranslateBtn = !urduVal && (engVal || arVal);
 
         return `
             <div class="hadith-card" data-id="${hadith.number}">
                 <div class="hadith-meta">
                     <span>${hadith.reference} ${gradeHtml}</span>
                 </div>
-                <div class="arabic-text" style="${showArabic ? 'display: block;' : 'display: none;'} font-size: 1.5rem; text-align: right;">${arVal}</div>
+                ${arVal ? `<div class="arabic-text" style="${showArabic ? 'display: block;' : 'display: none;'} font-size: 1.5rem; text-align: right;">${arVal}</div>` : ''}
                 
                 <div class="hadith-text urdu-text" style="${(showUrdu && urduVal) ? 'display: block;' : 'display: none;'}">
                     ${urduVal}
@@ -414,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         translateBtn.innerHTML = `<span class="btn-spinner"></span> Translating...`;
                         
                         try {
-                            const sourceText = englishContainer ? englishContainer.innerText : arabicContainer.innerText;
+                            const sourceText = englishContainer ? englishContainer.textContent : arabicContainer.textContent;
                             const translated = await translateText(sourceText);
                             const hadithId = card.dataset.id;
                             const hadithObj = currentBookHadiths.find(h => String(h.number) === String(hadithId));
@@ -448,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const translateBtn = card.querySelector('.translate-btn');
             
             if (urduContainer && urduContainer.innerHTML.trim() === '' && (englishContainer || arabicContainer)) {
-                const sourceText = englishContainer ? englishContainer.innerText : arabicContainer.innerText;
+                const sourceText = englishContainer ? englishContainer.textContent : arabicContainer.textContent;
                 if (!sourceText) continue;
 
                 if (translateBtn) {
@@ -591,6 +591,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!collection) return;
 
         currentPage = 0;
+        
+        // Filter out completely empty hadiths (where Arabic, Urdu, and English are all empty) to prevent displaying empty cards
+        currentBookHadiths = currentBookHadiths.filter(h => 
+            (h.text_ar && h.text_ar.trim() !== '') || 
+            (h.text_ur && h.text_ur.trim() !== '') || 
+            (h.text_en && h.text_en.trim() !== '')
+        );
         
         const isGroupA = ['bukhari', 'muslim', 'tirmidhi', 'abudawud', 'nasai', 'ibnmajah', 'malik'].includes(currentCollectionId);
         
