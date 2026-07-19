@@ -157,11 +157,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         if (groupABooks.includes(id)) {
-            // Fetch Arabic, Urdu, and English texts simultaneously for Group A with CDN fallback
+            // Fetch Arabic and Urdu texts simultaneously. Skip English on initial load for Group A to save bandwidth.
+            showEnglish = false;
             Promise.all([
                 fetchHadithEdition('ara', id),
                 fetchHadithEdition('urd', id),
-                fetchHadithEdition('eng', id).catch(() => null)
+                Promise.resolve(null)
             ])
             .then(([araData, urdData, engData]) => {
                 currentBookHadiths = [];
