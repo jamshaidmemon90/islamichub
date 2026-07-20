@@ -1,0 +1,49 @@
+=== BOOK: bukhari ===
+  Arabic count: 7589, first 3 nums: 1,2,3
+  Urdu count:   7589, first 3 nums: 1,2,3
+  English count:7589, first 3 nums: 1,2,3
+  Arabic hadiths with no Urdu match: 0
+  Urdu hadiths with no Arabic match: 0
+
+=== BOOK: muslim ===
+  Arabic count: 7563, first 3 nums: 1,2,3
+  Urdu count:   7564, first 3 nums: 0,1,2
+  English count:7563, first 3 nums: 1,2,3
+  Arabic hadiths with no Urdu match: 0
+  Urdu hadiths with no Arabic match: 1
+  Sample Urdu missing in Arabic hadithnumbers: 0
+
+=== BOOK: tirmidhi ===
+  Arabic count: 3998, first 3 nums: 1,2,3
+  Urdu count:   3998, first 3 nums: 1,2,3
+  English count:3998, first 3 nums: 1,2,3
+  Arabic hadiths with no Urdu match: 0
+  Urdu hadiths with no Arabic match: 0
+
+=== BOOK: abudawud ERROR: fetch failed
+
+=== BOOK: nasai ===
+  Arabic count: 5765, first 3 nums: 1,2,3
+  Urdu count:   5765, first 3 nums: 1,2,3
+  English count:5765, first 3 nums: 1,2,3
+  Arabic hadiths with no Urdu match: 0
+  Urdu hadiths with no Arabic match: 0
+
+=== BOOK: ibnmajah ===
+  Arabic count: 4343, first 3 nums: 1,2,3
+  Urdu count:   4343, first 3 nums: 1,2,3
+  English count:4343, first 3 nums: 1,2,3
+  Arabic hadiths with no Urdu match: 0
+  Urdu hadiths with no Arabic match: 0
+
+=== BOOK: malik ===
+  Arabic count: 1858, first 3 nums: 1,2,3
+  Urdu count:   1889, first 3 nums: 1,2,3
+  English count:1858, first 3 nums: 1,2,3
+  Arabic hadiths with no Urdu match: 0
+  Urdu hadiths with no Arabic match: 31
+  Sample Urdu missing in Arabic hadithnumbers: 631.5,787.5,874.5,904.5,926.5,943.5,956.5,974.5,1014.5,1063.5
+
+=== BOOK: nawawi ERROR: fetch failed
+
+=== BOOK: qudsi ERROR: fetch failed

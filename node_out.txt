@@ -1,0 +1,13 @@
+Arabic count: 7563
+Urdu count: 7564
+Ara not in Urd count: 0
+Urd not in Ara count: 1
+
+First 10 Arabic hadith numbers:
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+
+First 10 Urdu hadith numbers:
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+
+Sample Ara not in Urd hadiths (first 10):
+
